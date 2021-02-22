@@ -13,8 +13,11 @@ namespace Witsml.Query
                 {
                     UidWellbore = "",
                     UidWell = "",
+                    Uid = "",
                     NameWellbore = "",
                     NameWell = "",
+                    Name = ""
+                    //ObjectReference = new WitsmlObjectReference(),
                     CommonData = new WitsmlCommonData()
                 }.AsSingletonList()
             };
@@ -27,8 +30,11 @@ namespace Witsml.Query
                 {
                     UidWellbore = "",
                     UidWell = "",
+                    Uid = "",
                     NameWellbore = "",
                     NameWell = "",
+                    Name = ""
+                    //ObjectReference = new WitsmlObjectReference(),
                     CommonData = new WitsmlCommonData()
                 }.AsSingletonList()
             };
@@ -42,12 +48,57 @@ namespace Witsml.Query
                 {
                     UidWellbore = "",
                     UidWell = "",
+                    Uid = "",
                     NameWellbore = "",
                     NameWell = "",
+                    Name = ""
+                    //ObjectReference = new WitsmlObjectReference(),
+                    CommonData = new WitsmlCommonData()
+                }.AsSingletonList()
+            };
+        }
+        public static WitsmlMessageObjects QueryByUid(string wellUid, string wellboreUid, string messageUid)
+        {
+            return new WitsmlMessageObjects
+            {
+                MessageObjects = new WitsmlMessageObject
+                {
+                    UidWellbore = "",
+                    UidWell = "",
+                    Uid = "",
+                    NameWellbore = "",
+                    NameWell = "",
+                    Name = ""
+                    //ObjectReference = new WitsmlObjectReference(),
+                    CommonData = new WitsmlCommonData()
+                }.AsSingletonList()
+            };
+        }
+        public static WitsmlMessageObjects UpdateMessageQuery(string wellUid, string wellboreUid, string messageUid)
+        {
+            return new WitsmlMessageObjects
+            {
+                MessageObjects = new WitsmlMessageObject
+                {
+                    Uid = messageUid,
+                    UidWellbore = wellboreUid,
+                    UidWell = wellUid
                 }.AsSingletonList()
             };
         }
 
+        public static WitsmlMessageObjects DeleteMessageQuery(string wellUid, string wellboreUid, string messageUid)
+        {
+            return new WitsmlMessageObjects
+            {
+                MessageObjects = new WitsmlMessageObject
+                {
+                    Uid = messageUid,
+                    UidWellbore = wellboreUid,
+                    UidWell = wellUid
+                }.AsSingletonList()
+            };
+        }
 
     }
 }
