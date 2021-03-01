@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Azure.Cosmos;
@@ -20,7 +19,7 @@ namespace WitsmlExplorer.Api.Repositories
             containerId = $"{typeof(TDocument).Name}s";
             cosmosClient = new CosmosClient(uri, password, new CosmosClientOptions
             {
-                ConnectionMode = ConnectionMode.Gateway,
+                ConnectionMode = ConnectionMode.Gateway
                 // TODO Add the following line when https://github.com/Azure/azure-cosmos-dotnet-v3/issues/1193 is fixed. Also remove JsonPropertyName attributes from models.
                 // SerializerOptions = new CosmosSerializationOptions{ PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase }
             });

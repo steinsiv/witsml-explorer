@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -39,7 +38,7 @@ namespace WitsmlExplorer.Api.Services
                     DTimTrajStart = StringHelpers.ToDateTime(trajectory.DTimTrajStart),
                     DTimTrajEnd = StringHelpers.ToDateTime(trajectory.DTimTrajEnd),
                     DateTimeCreation = StringHelpers.ToDateTime(trajectory.CommonData?.DTimCreation),
-                    DateTimeLastChange = StringHelpers.ToDateTime(trajectory.CommonData?.DTimLastChange),
+                    DateTimeLastChange = StringHelpers.ToDateTime(trajectory.CommonData?.DTimLastChange)
                 }).OrderBy(trajectory => trajectory.Name);
         }
 

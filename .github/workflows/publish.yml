@@ -1,0 +1,36 @@
+name: Package and publish
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/publish.yml'
+      - 'Src/Witsml'
+
+jobs:
+  build:
+    name: Package and publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 5.0.100
+          source-url: https://nuget.pkg.github.com/equinor/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Install dependencies
+        run: dotnet restore
+      - name: Build with dotnet
+        run: dotnet build /warnaserror --configuration Release --no-restore
+      - name: Test with dotnet
+        run: dotnet test ./Tests/WitsmlExplorer.Api.Tests/WitsmlExplorer.Api.Tests.csproj --configuration Release --no-restore
+      - name: Package
+        run: dotnet pack --configuration Release Src/Witsml -p:Version=1.0.${GITHUB_RUN_NUMBER}
+      - name: Publish
+        run: dotnet nuget push Src/Witsml/bin/Release/Witsml.1.0.${GITHUB_RUN_NUMBER}.nupkg
+
+
