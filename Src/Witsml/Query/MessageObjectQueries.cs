@@ -16,7 +16,7 @@ namespace Witsml.Query
                     Uid = "",
                     NameWellbore = "",
                     NameWell = "",
-                    Name = ""
+                    Name = "",
                     //ObjectReference = new WitsmlObjectReference(),
                     CommonData = new WitsmlCommonData()
                 }.AsSingletonList()
@@ -33,7 +33,7 @@ namespace Witsml.Query
                     Uid = "",
                     NameWellbore = "",
                     NameWell = "",
-                    Name = ""
+                    Name = "",
                     //ObjectReference = new WitsmlObjectReference(),
                     CommonData = new WitsmlCommonData()
                 }.AsSingletonList()
@@ -51,7 +51,7 @@ namespace Witsml.Query
                     Uid = "",
                     NameWellbore = "",
                     NameWell = "",
-                    Name = ""
+                    Name = "",
                     //ObjectReference = new WitsmlObjectReference(),
                     CommonData = new WitsmlCommonData()
                 }.AsSingletonList()
@@ -68,7 +68,7 @@ namespace Witsml.Query
                     Uid = "",
                     NameWellbore = "",
                     NameWell = "",
-                    Name = ""
+                    Name = "",
                     //ObjectReference = new WitsmlObjectReference(),
                     CommonData = new WitsmlCommonData()
                 }.AsSingletonList()
