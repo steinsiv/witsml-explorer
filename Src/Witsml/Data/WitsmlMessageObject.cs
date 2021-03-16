@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Xml.Serialization;
 
 namespace Witsml.Data
@@ -13,7 +12,7 @@ namespace Witsml.Data
         [XmlElement("nameWell")] public string NameWell { get; set; }
         [XmlElement("nameWellbore")] public string NameWellbore { get; set; }
         [XmlElement("name")] public string Name { get; set; }
-        
+
         //# Required
         [XmlElement("objectReference")] public WitsmlObjectReference ObjectReference { get; set; }
 

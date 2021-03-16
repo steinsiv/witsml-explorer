@@ -35,6 +35,7 @@ namespace WitsmlExplorer.Api.Services
         private readonly ICreateLogWorker createLogWorker;
         private readonly ICreateWellWorker createWellWorker;
         private readonly ICreateWellboreWorker createWellboreWorker;
+        private readonly ICreateMessageObjectWorker createMessageObjectWorker;
 
         public JobService(
             IHubContext<NotificationsHub> hubContext,
@@ -54,7 +55,8 @@ namespace WitsmlExplorer.Api.Services
             IModifyWellboreWorker modifyWellboreWorker,
             ICreateLogWorker createLogWorker,
             ICreateWellWorker createWellWorker,
-            ICreateWellboreWorker createWellboreWorker)
+            ICreateWellboreWorker createWellboreWorker,
+            ICreateMessageObjectWorker createMessageObjectWorker)
         {
             this.hubContext = hubContext;
             this.copyLogWorker = copyLogWorker;
@@ -74,6 +76,7 @@ namespace WitsmlExplorer.Api.Services
             this.createLogWorker = createLogWorker;
             this.createWellWorker = createWellWorker;
             this.createWellboreWorker = createWellboreWorker;
+            this.createMessageObjectWorker = createMessageObjectWorker;
         }
 
         public async Task CreateJob(JobType jobType, Stream jobStream)
@@ -150,16 +153,20 @@ namespace WitsmlExplorer.Api.Services
                     var createWellboreJob = await jobStream.Deserialize<CreateWellboreJob>();
                     (result, refreshAction) = await createWellboreWorker.Execute(createWellboreJob);
                     break;
+                case JobType.CreateMessageObject:
+                    var createMessageObjectJob = await jobStream.Deserialize<CreateMessageObjectJob>();
+                    (result, refreshAction) = await createMessageObjectWorker.Execute(createMessageObjectJob);
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(jobType), jobType, $"No worker setup to execute {jobType.GetDisplayName()}");
             }
 
             if (hubContext != null)
             {
-                await hubContext.Clients.All.SendCoreAsync("jobFinished", new object[] {result});
+                await hubContext.Clients.All.SendCoreAsync("jobFinished", new object[] { result });
 
                 if (refreshAction != null)
-                    await hubContext.Clients.All.SendCoreAsync("refresh", new object[] {refreshAction});
+                    await hubContext.Clients.All.SendCoreAsync("refresh", new object[] { refreshAction });
             }
         }
     }

@@ -20,9 +20,9 @@ namespace WitsmlExplorer.Api.Services
     {
         public MessageObjectService(IWitsmlClientProvider witsmlClientProvider) : base(witsmlClientProvider) { }
 
-        public async Task<MessageObject> GetMessageObject(string wellUid, string wellboreUid,string msgUid)
+        public async Task<MessageObject> GetMessageObject(string wellUid, string wellboreUid, string msgUid)
         {
-            var query = MessageObjectQueries.QueryByUid(wellUid, wellboreUid,msgUid);
+            var query = MessageObjectQueries.QueryByUid(wellUid, wellboreUid, msgUid);
             var result = await WitsmlClient.GetFromStoreAsync(query, OptionsIn.All);
             var messageObject = result.MessageObjects.FirstOrDefault();
             if (messageObject == null) return null;
