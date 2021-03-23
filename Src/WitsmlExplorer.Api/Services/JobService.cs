@@ -142,8 +142,8 @@ namespace WitsmlExplorer.Api.Services
                     result = await deleteTrajectoryWorker.Execute(deleteTrajectoryJob);
                     break;
                 case JobType.CreateLogObject:
-                    var createLogObject = await jobStream.Deserialize<CreateLogJob>();
-                    (result, refreshAction) = await createLogWorker.Execute(createLogObject);
+                    var createLogObjectJob = await jobStream.Deserialize<CreateLogJob>();
+                    (result, refreshAction) = await createLogWorker.Execute(createLogObjectJob);
                     break;
                 case JobType.CreateWell:
                     var createWellJob = await jobStream.Deserialize<CreateWellJob>();

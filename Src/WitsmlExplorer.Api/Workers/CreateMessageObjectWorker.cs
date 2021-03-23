@@ -19,7 +19,8 @@ namespace WitsmlExplorer.Api.Workers
     {
         Task<(WorkerResult, RefreshAction)> Execute(CreateMessageObjectJob job);
     }
-    public class CreateMessageObjectWorker
+
+    public class CreateMessageObjectWorker : ICreateMessageObjectWorker
     {
         private readonly IWitsmlClient witsmlClient;
 
