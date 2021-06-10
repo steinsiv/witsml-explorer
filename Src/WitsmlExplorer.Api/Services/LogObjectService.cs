@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Witsml.Data;
+using Witsml.Extensions;
 using Witsml.Query;
 using Witsml.ServiceReference;
 using WitsmlExplorer.Api.Models;
@@ -38,10 +39,11 @@ namespace WitsmlExplorer.Api.Services
                     WellName = log.NameWell,
                     WellboreUid = log.UidWellbore,
                     WellboreName = log.NameWellbore,
+                    ObjectGrowing = StringHelpers.ToBooleanSafe(log.ObjectGrowing),
                     ServiceCompany = log.ServiceCompany,
                     RunNumber = log.RunNumber,
-                    StartIndex = GetIndexAsString(log.IndexType, log.StartIndex, log.StartDateTimeIndex),
-                    EndIndex = GetIndexAsString(log.IndexType, log.EndIndex, log.EndDateTimeIndex),
+                    StartIndex = log.GetStartIndexAsString(),
+                    EndIndex = log.GetEndIndexAsString(),
                     DateTimeLastChange = StringHelpers.ToDateTime(log.CommonData.DTimLastChange),
                     IndexCurve = log.IndexCurve.Value
                 }).OrderBy(log => log.Name);
@@ -69,13 +71,14 @@ namespace WitsmlExplorer.Api.Services
                 WellboreUid = witsmlLog.UidWellbore,
                 WellboreName = witsmlLog.NameWellbore,
                 IndexCurve = witsmlLog.IndexCurve.Value,
+                ObjectGrowing = StringHelpers.ToBooleanSafe(witsmlLog.ObjectGrowing),
                 ServiceCompany = witsmlLog.ServiceCompany,
                 RunNumber = witsmlLog.RunNumber
             };
             if (string.IsNullOrEmpty(witsmlLog.IndexType)) return logObject;
 
-            logObject.StartIndex = GetIndexAsString(witsmlLog.IndexType, witsmlLog.StartIndex, witsmlLog.StartDateTimeIndex);
-            logObject.EndIndex = GetIndexAsString(witsmlLog.IndexType, witsmlLog.EndIndex, witsmlLog.EndDateTimeIndex);
+            logObject.StartIndex = witsmlLog.GetStartIndexAsString();
+            logObject.EndIndex = witsmlLog.GetEndIndexAsString();
 
             return logObject;
         }
@@ -134,7 +137,7 @@ namespace WitsmlExplorer.Api.Services
                 StartIndex = Index.Start(witsmlLog).GetValueAsString(),
                 EndIndex = Index.End(witsmlLog).GetValueAsString(),
                 CurveSpecifications = witsmlLogMnemonics.Zip(witsmlLogUnits, (mnemonic, unit) =>
-                    new CurveSpecification {Mnemonic = mnemonic, Unit = unit}),
+                    new CurveSpecification { Mnemonic = mnemonic, Unit = unit }),
                 Data = GetDataDictionary(witsmlLog.LogData)
             };
         }
@@ -147,7 +150,7 @@ namespace WitsmlExplorer.Api.Services
             {
                 var data = new Dictionary<string, LogDataValue>();
                 foreach (var keyValuePair in valueRow.Split(",")
-                    .Select((value, index) => new {index, value}))
+                    .Select((value, index) => new { index, value }))
                 {
                     if (string.IsNullOrEmpty(keyValuePair.value)) continue;
                     data.Add(mnemonics[keyValuePair.index], new LogDataValue(keyValuePair.value));
@@ -156,12 +159,6 @@ namespace WitsmlExplorer.Api.Services
             }
 
             return result;
-        }
-
-        private static string GetIndexAsString(string indexType, WitsmlIndex index, string dateTimeIndex)
-        {
-            if (index == null && string.IsNullOrEmpty(dateTimeIndex)) return null;
-            return indexType.Equals(WitsmlLog.WITSML_INDEX_TYPE_MD) ? index != null ? index.ToString() : "" : dateTimeIndex;
         }
     }
 }

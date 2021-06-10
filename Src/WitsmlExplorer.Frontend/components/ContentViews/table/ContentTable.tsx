@@ -1,25 +1,26 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Moment from "react-moment";
 import orderBy from "lodash/orderBy";
 import { Checkbox, Table, TableBody, TableCell as MuiTableCell, TableHead, TableRow as MuiTableRow, TableSortLabel } from "@material-ui/core";
 import { DateFormat } from "../../Constants";
-import { ContentTableProps, ContentTableRow, ContentType, Order, getSelectedRange, getCheckedRows } from "./";
+import { ContentTableProps, ContentTableRow, ContentType, Order, getSelectedRange, getCheckedRows, ContentTableColumn, getComparatorByColumn } from "./";
 import { colors } from "../../../styles/Colors";
+import { IsActiveIcon } from "../../Icons/IsActiveIcon";
 
 export const ContentTable = (props: ContentTableProps): React.ReactElement => {
   const { columns, onSelect, onContextMenu, checkableRows } = props;
   const [data, setData] = useState<any[]>(props.data ?? []);
   const [checkedContentItems, setCheckedContentItems] = useState<ContentTableRow[]>([]);
   const [sortOrder, setSortOrder] = useState<Order>(Order.Ascending);
-  const [sortedColumn, setSortedColumn] = useState<string>(columns[0].property);
+  const [sortedColumn, setSortedColumn] = useState<ContentTableColumn>(columns[0]);
   const [activeIndexRange, setActiveIndexRange] = useState<number[]>([]);
 
   useEffect(() => {
-    setData(orderBy(props.data, sortedColumn, sortOrder));
+    setData(orderBy(props.data, getComparatorByColumn(sortedColumn), [sortOrder, sortOrder]));
   }, [props.data, sortOrder, sortedColumn]);
 
-  const sortByColumn = (columnToSort: string) => {
+  const sortByColumn = (columnToSort: ContentTableColumn) => {
     const flipOrder = (order: Order) => (order === Order.Ascending ? Order.Descending : Order.Ascending);
     const isSameColumn = columnToSort === sortedColumn;
     const order = isSameColumn ? flipOrder(sortOrder) : Order.Ascending;
@@ -67,7 +68,7 @@ export const ContentTable = (props: ContentTableProps): React.ReactElement => {
           {columns &&
             columns.map((column) => (
               <TableHeaderCell key={column.property} align={column.type === ContentType.Number ? "right" : "left"}>
-                <TableSortLabel active={sortedColumn === column.property} direction={sortOrder} onClick={() => sortByColumn(column.property)}>
+                <TableSortLabel active={sortedColumn === column} direction={sortOrder} onClick={() => sortByColumn(column)}>
                   {column.label}
                 </TableSortLabel>
               </TableHeaderCell>
@@ -77,12 +78,7 @@ export const ContentTable = (props: ContentTableProps): React.ReactElement => {
       <TableBody>
         {data.map((item, index) => {
           return (
-            <TableRow
-              hover
-              key={index}
-              onContextMenu={onContextMenu ? (event) => onContextMenu(event, item, checkedContentItems) : (e) => e.preventDefault()}
-              onClick={(event) => selectRow(event, item)}
-            >
+            <TableRow hover key={index} onContextMenu={onContextMenu ? (event) => onContextMenu(event, item, checkedContentItems) : (e) => e.preventDefault()}>
               {checkableRows && (
                 <TableDataCell>
                   <Checkbox
@@ -92,17 +88,21 @@ export const ContentTable = (props: ContentTableProps): React.ReactElement => {
                 </TableDataCell>
               )}
               {columns &&
-                columns.map((column) => (
-                  <TableDataCell
-                    id={item[column.property] + column.property}
-                    key={item[column.property] + column.property}
-                    clickable={onSelect ? "true" : "false"}
-                    type={column.type}
-                    align={column.type === ContentType.Number ? "right" : "left"}
-                  >
-                    {format(column.type, item[column.property])}
-                  </TableDataCell>
-                ))}
+                columns.map(
+                  (column) =>
+                    column && (
+                      <TableDataCell
+                        id={item[column.property] + column.property}
+                        key={item[column.property] + column.property}
+                        clickable={onSelect ? "true" : "false"}
+                        type={column.type}
+                        align={column.type === ContentType.Number ? "right" : "left"}
+                        onClick={(event) => selectRow(event, item)}
+                      >
+                        {format(column.type, item[column.property])}
+                      </TableDataCell>
+                    )
+                )}
             </TableRow>
           );
         })}
@@ -111,12 +111,14 @@ export const ContentTable = (props: ContentTableProps): React.ReactElement => {
   );
 };
 
-const format = (type: ContentType, data: string | Date) => {
+const format = (type: ContentType, data: string | Date | boolean) => {
   switch (type) {
     case ContentType.DateTime:
       return formatDate(data as Date, DateFormat.DATETIME_S);
     case ContentType.Date:
       return formatDate(data as Date, DateFormat.DATE);
+    case ContentType.Icon:
+      return data && <IsActiveIcon />;
     default:
       return data;
   }

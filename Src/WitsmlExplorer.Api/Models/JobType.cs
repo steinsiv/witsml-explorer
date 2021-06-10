@@ -19,6 +19,7 @@ namespace WitsmlExplorer.Api.Models
         CreateLogObject,
         CreateMessageObject,
         CreateWell,
-        CreateWellbore
+        CreateWellbore,
+        BatchModifyWell
     }
 }

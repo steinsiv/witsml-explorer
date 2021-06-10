@@ -8,6 +8,7 @@ import NavigationContext from "../../contexts/navigationContext";
 import OperationContext from "../../contexts/operationContext";
 import OperationType from "../../contexts/operationType";
 import { getContextMenuPosition } from "../ContextMenus/ContextMenu";
+import { timeFromMinutesToMilliseconds } from "../../contexts/curveThreshold";
 
 export interface LogCurveInfoRow extends ContentTableRow {
   uid: string;
@@ -22,11 +23,12 @@ export interface LogCurveInfoRow extends ContentTableRow {
   wellboreUid: string;
   wellName: string;
   wellboreName: string;
+  isActive: boolean;
 }
 
 export const LogCurveInfoListView = (): React.ReactElement => {
   const { navigationState, dispatchNavigation } = useContext(NavigationContext);
-  const { selectedServer, selectedWell, selectedWellbore, selectedLog } = navigationState;
+  const { selectedServer, selectedWell, selectedWellbore, selectedLog, selectedCurveThreshold } = navigationState;
   const { dispatchOperation } = useContext(OperationContext);
   const [logCurveInfoList, setLogCurveInfoList] = useState<LogCurveInfo[]>([]);
   const isDepthIndex = !!logCurveInfoList?.[0]?.maxDepthIndex;
@@ -57,7 +59,18 @@ export const LogCurveInfoListView = (): React.ReactElement => {
     dispatchOperation({ type: OperationType.DisplayContextMenu, payload: { component: <LogCurveInfoContextMenu {...contextMenuProps} />, position } });
   };
 
+  const calculateIsCurveActive = (logCurveInfo: LogCurveInfo, maxDepth: number): boolean => {
+    if (isDepthIndex) {
+      return maxDepth - logCurveInfo.maxDepthIndex < selectedCurveThreshold.depthInMeters;
+    } else {
+      const dateDifferenceInMilliseconds = new Date().valueOf() - new Date(logCurveInfo.maxDateTimeIndex).valueOf();
+      return dateDifferenceInMilliseconds < timeFromMinutesToMilliseconds(selectedCurveThreshold.timeInMinutes);
+    }
+  };
+
   const getTableDate = () => {
+    const maxDepth = Math.max(...logCurveInfoList.map((x) => x.maxDepthIndex));
+
     return logCurveInfoList.map((logCurveInfo) => {
       return {
         id: `${selectedLog.uid}-${logCurveInfo.mnemonic}`,
@@ -72,12 +85,14 @@ export const LogCurveInfoListView = (): React.ReactElement => {
         wellUid: selectedWell.uid,
         wellboreUid: selectedWellbore.uid,
         wellName: selectedWell.name,
-        wellboreName: selectedWellbore.name
+        wellboreName: selectedWellbore.name,
+        isActive: selectedLog.objectGrowing && calculateIsCurveActive(logCurveInfo, maxDepth)
       };
     });
   };
 
   const columns: ContentTableColumn[] = [
+    !isDepthIndex && { property: "isActive", label: "Active", type: ContentType.Icon },
     { property: "mnemonic", label: "Mnemonic", type: ContentType.String },
     { property: "minIndex", label: "MinIndex", type: isDepthIndex ? ContentType.Number : ContentType.DateTime },
     { property: "maxIndex", label: "MaxIndex", type: isDepthIndex ? ContentType.Number : ContentType.DateTime },

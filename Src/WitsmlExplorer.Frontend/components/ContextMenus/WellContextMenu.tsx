@@ -1,28 +1,32 @@
 import React from "react";
 import ContextMenu from "./ContextMenu";
 import { Divider, ListItemIcon, MenuItem, Typography } from "@material-ui/core";
-import WellPropertiesModal, { WellPropertiesModalMode, WellPropertiesModalProps } from "../Modals/WellPropertiesModal";
+import WellPropertiesModal, { WellPropertiesModalProps } from "../Modals/WellPropertiesModal";
 import { DeleteIcon, NewIcon, SettingsIcon } from "../Icons";
 import OperationType from "../../contexts/operationType";
 import Well from "../../models/well";
 import { v4 as uuid } from "uuid";
 import Wellbore from "../../models/wellbore";
-import WellborePropertiesModal, { WellborePropertiesModalMode, WellborePropertiesModalProps } from "../Modals/WellborePropertiesModal";
+import WellborePropertiesModal, { WellborePropertiesModalProps } from "../Modals/WellborePropertiesModal";
 import JobService, { JobType } from "../../services/jobService";
 import ConfirmModal from "../Modals/ConfirmModal";
 import DeleteWellJob from "../../models/jobs/deleteWellJob";
 import { DisplayModalAction, HideContextMenuAction, HideModalAction } from "../../contexts/operationStateReducer";
 import { Server } from "../../models/server";
 import NestedMenuItem from "./NestedMenuItem";
+import { PropertiesModalMode } from "../Modals/ModalParts";
+import { WellRow } from "../ContentViews/WellsListView";
+import WellBatchUpdateModal, { WellBatchUpdateModalProps } from "../Modals/WellBatchUpdateModal";
 
 export interface WellContextMenuProps {
   dispatchOperation: (action: DisplayModalAction | HideModalAction | HideContextMenuAction) => void;
   well: Well;
   servers?: Server[];
+  checkedWellRows?: WellRow[];
 }
 
 const WellContextMenu = (props: WellContextMenuProps): React.ReactElement => {
-  const { dispatchOperation, well, servers } = props;
+  const { dispatchOperation, well, servers, checkedWellRows } = props;
 
   const onClickNewWell = () => {
     const newWell: Well = {
@@ -33,7 +37,7 @@ const WellContextMenu = (props: WellContextMenuProps): React.ReactElement => {
       country: "",
       timeZone: ""
     };
-    const wellPropertiesModalProps: WellPropertiesModalProps = { mode: WellPropertiesModalMode.New, well: newWell, dispatchOperation };
+    const wellPropertiesModalProps: WellPropertiesModalProps = { mode: PropertiesModalMode.New, well: newWell, dispatchOperation };
     dispatchOperation({ type: OperationType.DisplayModal, payload: <WellPropertiesModal {...wellPropertiesModalProps} /> });
   };
 
@@ -45,12 +49,12 @@ const WellContextMenu = (props: WellContextMenuProps): React.ReactElement => {
       wellName: well.name,
       wellStatus: "",
       wellType: "",
-      isActive: "",
+      isActive: false,
       wellboreParentUid: "",
       wellboreParentName: "",
       wellborePurpose: "unknown"
     };
-    const wellborePropertiesModalProps: WellborePropertiesModalProps = { mode: WellborePropertiesModalMode.New, wellbore: newWellbore, dispatchOperation };
+    const wellborePropertiesModalProps: WellborePropertiesModalProps = { mode: PropertiesModalMode.New, wellbore: newWellbore, dispatchOperation };
     dispatchOperation({ type: OperationType.DisplayModal, payload: <WellborePropertiesModal {...wellborePropertiesModalProps} /> });
   };
 
@@ -84,7 +88,7 @@ const WellContextMenu = (props: WellContextMenuProps): React.ReactElement => {
   };
 
   const onClickProperties = () => {
-    const wellPropertiesModalProps: WellPropertiesModalProps = { mode: WellPropertiesModalMode.Edit, well, dispatchOperation };
+    const wellPropertiesModalProps: WellPropertiesModalProps = { mode: PropertiesModalMode.Edit, well, dispatchOperation };
     dispatchOperation({ type: OperationType.DisplayModal, payload: <WellPropertiesModal {...wellPropertiesModalProps} /> });
   };
 
@@ -95,16 +99,21 @@ const WellContextMenu = (props: WellContextMenuProps): React.ReactElement => {
     dispatchOperation({ type: OperationType.HideContextMenu });
   };
 
+  const onClickBatchUpdate = () => {
+    const wellBatchUpdateModalProps: WellBatchUpdateModalProps = { wellRows: checkedWellRows, dispatchOperation };
+    dispatchOperation({ type: OperationType.DisplayModal, payload: <WellBatchUpdateModal {...wellBatchUpdateModalProps} /> });
+  };
+
   return (
     <ContextMenu
       menuItems={[
-        <MenuItem key={"newwell"} onClick={onClickNewWell}>
+        <MenuItem key={"newWell"} onClick={onClickNewWell}>
           <ListItemIcon>
             <NewIcon />
           </ListItemIcon>
           <Typography color={"primary"}>New Well</Typography>
         </MenuItem>,
-        <MenuItem key={"newwellbore"} onClick={onClickNewWellbore}>
+        <MenuItem key={"newWellbore"} onClick={onClickNewWellbore}>
           <ListItemIcon>
             <NewIcon />
           </ListItemIcon>
@@ -129,7 +138,15 @@ const WellContextMenu = (props: WellContextMenuProps): React.ReactElement => {
             <SettingsIcon />
           </ListItemIcon>
           <Typography color={"primary"}>Properties</Typography>
-        </MenuItem>
+        </MenuItem>,
+        checkedWellRows && (
+          <MenuItem key={"batchUpdate"} onClick={onClickBatchUpdate} disabled={checkedWellRows.length == 0}>
+            <ListItemIcon>
+              <SettingsIcon />
+            </ListItemIcon>
+            <Typography color={"primary"}>Batch Update</Typography>
+          </MenuItem>
+        )
       ]}
     />
   );

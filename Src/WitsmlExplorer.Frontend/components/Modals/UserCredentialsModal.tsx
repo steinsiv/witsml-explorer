@@ -3,6 +3,7 @@ import { TextField } from "@material-ui/core";
 import ModalDialog, { ModalWidth } from "./ModalDialog";
 import CredentialsService, { ServerCredentials } from "../../services/credentialsService";
 import { Server } from "../../models/server";
+import { validText } from "./ModalParts";
 
 export interface UserCredentialsModalProps {
   server: Server;
@@ -75,10 +76,6 @@ const UserCredentialsModal = (props: UserCredentialsModalProps): React.ReactElem
     setIsLoading(false);
   };
 
-  const validText = (text: string): boolean => {
-    return text && text.length > 0;
-  };
-
   return (
     <ModalDialog
       heading={`Access server "${server.name}"`}
@@ -112,7 +109,7 @@ const UserCredentialsModal = (props: UserCredentialsModalProps): React.ReactElem
         </>
       }
       confirmDisabled={!validText(username) || !validText(password)}
-      confirmText={confirmText ?? mode === CredentialsMode.SAVE ? "Save" : "Test"}
+      confirmText={confirmText ?? mode === CredentialsMode.SAVE ? "Login" : "Test"}
       onSubmit={mode === CredentialsMode.SAVE ? onSave : onVerifyConnection}
       onCancel={props.onCancel}
       isLoading={isLoading}

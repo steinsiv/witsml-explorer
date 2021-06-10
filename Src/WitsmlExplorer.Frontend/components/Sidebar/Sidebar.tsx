@@ -1,36 +1,23 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext } from "react";
 import styled from "styled-components";
 import { TreeView } from "@material-ui/lab";
-import { TextField as MuiTextField } from "@material-ui/core";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import WellItem from "./WellItem";
 import PropertiesPanel from "./PropertiesPanel";
 import NavigationContext from "../../contexts/navigationContext";
-import NavigationType from "../../contexts/navigationType";
 import ServerManager from "./ServerManager";
-import { colors } from "../../styles/Colors";
 import Well from "../../models/well";
+import FilterPanel from "./FilterPanel";
 
 const Sidebar = (): React.ReactElement => {
-  const { navigationState, dispatchNavigation } = useContext(NavigationContext);
-  const { filteredWells, expandedTreeNodes, currentProperties, selectedFilter } = navigationState;
-  const [filter, setFilter] = useState<string>("");
-
-  useEffect(() => {
-    setFilter(selectedFilter);
-  }, [selectedFilter]);
+  const { navigationState } = useContext(NavigationContext);
+  const { filteredWells, expandedTreeNodes, currentProperties } = navigationState;
 
   return (
     <>
       <ServerManager />
-      <TextField
-        id="filter-tree"
-        label="Filter wells"
-        onChange={(event) => dispatchNavigation({ type: NavigationType.SetFilter, payload: { filter: event.target.value } })}
-        value={filter}
-        autoComplete={"off"}
-      />
+      <FilterPanel />
       <SidebarTreeView>
         {filteredWells && filteredWells.length > 0 && (
           <TreeView
@@ -55,13 +42,6 @@ const SidebarTreeView = styled.div`
   flex: 1 1 auto;
   height: 70%;
   padding-left: 0.5rem;
-`;
-
-const TextField = styled(MuiTextField)`
-  && {
-    background-color: ${colors.ui.backgroundLight};
-    margin-left: 0.5rem;
-  }
 `;
 
 export default Sidebar;

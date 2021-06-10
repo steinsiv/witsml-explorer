@@ -25,6 +25,7 @@ import Trajectory, { getTrajectoryProperties } from "../../models/trajectory";
 import { Server } from "../../models/server";
 import ModificationType from "../modificationType";
 import Rig from "../../models/rig";
+import Filter, { EMPTY_FILTER } from "../filter";
 
 it("Should not update state when selecting current selected server", () => {
   const initialState = {
@@ -32,7 +33,7 @@ it("Should not update state when selecting current selected server", () => {
     currentSelected: SERVER_1,
     wells: [WELL_1],
     filteredWells: [WELL_1],
-    selectedFilter: WELL_1.name,
+    selectedFilter: FILTER_1,
     servers: [SERVER_1, SERVER_2]
   };
   const selectServerAction: SelectServerAction = { type: NavigationType.SelectServer, payload: { server: SERVER_1 } };
@@ -47,7 +48,7 @@ it("Should update state when selecting another server", () => {
     ...getInitialState(),
     wells: [WELL_1],
     filteredWells: [WELL_1],
-    selectedFilter: WELL_1.name,
+    selectedFilter: FILTER_1,
     servers: [SERVER_1, SERVER_2]
   };
   const selectServerAction: SelectServerAction = { type: NavigationType.SelectServer, payload: { server: SERVER_2 } };
@@ -170,7 +171,7 @@ it("Should also update well and wellbore when a trajectory is selected", () => {
     servers: [SERVER_1],
     wells: WELLS,
     filteredWells: WELLS,
-    selectedFilter: "",
+    selectedFilter: EMPTY_FILTER,
     currentProperties: getTrajectoryProperties(TRAJECTORY_1, WELLBORE_2)
   });
 });
@@ -178,7 +179,7 @@ it("Should also update well and wellbore when a trajectory is selected", () => {
 it("Should filter wells", () => {
   const setFilterAction = {
     type: NavigationType.SetFilter,
-    payload: { filter: "2" }
+    payload: { filter: { ...EMPTY_FILTER, wellName: "2" } }
   };
   const actual = reducer(getInitialState(), setFilterAction);
   expect(actual).toStrictEqual({
@@ -187,7 +188,7 @@ it("Should filter wells", () => {
     servers: [SERVER_1],
     wells: WELLS,
     filteredWells: [WELL_2],
-    selectedFilter: "2"
+    selectedFilter: { ...EMPTY_FILTER, wellName: "2" }
   });
 });
 
@@ -679,9 +680,9 @@ it("Should collapse child nodes when toggling an expanded parent node", () => {
 
 const SERVER_1 = { id: "1", name: "WITSML server", url: "http://example.com", description: "Witsml server" };
 const SERVER_2 = { id: "2", name: "WITSML server 2", url: "http://example2.com", description: "Witsml server 2" };
-const WELLBORE_1: Wellbore = { uid: "wellbore1", wellUid: "well1", name: "Wellbore 1", logs: [], rigs: [], trajectories: [], wellStatus: "", wellType: "", isActive: "" };
-const WELLBORE_2: Wellbore = { uid: "wellbore2", wellUid: "well2", name: "Wellbore 2", logs: [], rigs: [], trajectories: [], wellStatus: "", wellType: "", isActive: "" };
-const WELLBORE_3: Wellbore = { uid: "wellbore3", wellUid: "well3", name: "Wellbore 3", logs: [], rigs: [], trajectories: [], wellStatus: "", wellType: "", isActive: "" };
+const WELLBORE_1: Wellbore = { uid: "wellbore1", wellUid: "well1", name: "Wellbore 1", logs: [], rigs: [], trajectories: [], wellStatus: "", wellType: "", isActive: false };
+const WELLBORE_2: Wellbore = { uid: "wellbore2", wellUid: "well2", name: "Wellbore 2", logs: [], rigs: [], trajectories: [], wellStatus: "", wellType: "", isActive: false };
+const WELLBORE_3: Wellbore = { uid: "wellbore3", wellUid: "well3", name: "Wellbore 3", logs: [], rigs: [], trajectories: [], wellStatus: "", wellType: "", isActive: false };
 const WELL_1: Well = { uid: "well1", name: "Well 1", wellbores: [WELLBORE_1], field: "", operator: "", country: "" };
 const WELL_2: Well = { uid: "well2", name: "Well 2", wellbores: [WELLBORE_2], field: "", operator: "", country: "" };
 const WELL_3: Well = { uid: "well3", name: "Well 3", wellbores: [WELLBORE_3], field: "", operator: "", country: "" };
@@ -700,6 +701,7 @@ const TRAJECTORY_1: Trajectory = {
   dTimTrajEnd: null,
   dTimTrajStart: null
 };
+const FILTER_1: Filter = { ...EMPTY_FILTER, wellName: WELL_1.name };
 const TRAJECTORY_GROUP_1 = "TrajectoryGroup";
 
 const getInitialState = (): NavigationState => {
