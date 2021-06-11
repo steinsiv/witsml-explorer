@@ -12,6 +12,7 @@ namespace Witsml.Data
         [XmlElement("nameWell")] public string NameWell { get; set; }
         [XmlElement("nameWellbore")] public string NameWellbore { get; set; }
         [XmlElement("name")] public string Name { get; set; }
+        [XmlElement("messageText")] public string MessageText { get; set; }
 
         //# Required
         [XmlElement("objectReference")] public WitsmlObjectReference ObjectReference { get; set; }
