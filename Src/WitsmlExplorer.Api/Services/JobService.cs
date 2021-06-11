@@ -57,7 +57,7 @@ namespace WitsmlExplorer.Api.Services
             ICreateLogWorker createLogWorker,
             ICreateWellWorker createWellWorker,
             ICreateWellboreWorker createWellboreWorker,
-            ICreateMessageObjectWorker createMessageObjectWorker)
+            ICreateMessageObjectWorker createMessageObjectWorker,
             IBatchModifyWellWorker batchModifyWellWorker)
         {
             this.hubContext = hubContext;
@@ -159,6 +159,7 @@ namespace WitsmlExplorer.Api.Services
                 case JobType.CreateMessageObject:
                     var createMessageObjectJob = await jobStream.Deserialize<CreateMessageObjectJob>();
                     (result, refreshAction) = await createMessageObjectWorker.Execute(createMessageObjectJob);
+                    break;
                 case JobType.BatchModifyWell:
                     var batchModifyWellJob = await jobStream.Deserialize<BatchModifyWellJob>();
                     (result, refreshAction) = await batchModifyWellWorker.Execute(batchModifyWellJob);
