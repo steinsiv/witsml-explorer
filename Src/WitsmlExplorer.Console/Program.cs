@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console.Cli;
 using WitsmlExplorer.Console.ListCommands;
@@ -34,6 +34,12 @@ namespace WitsmlExplorer.Console
             {
                 add.AddCommand<ShowTubularCommand>("tubular").WithDescription("Export tubular within a well/wellbore");
             });
+
+            config.AddBranch("debug", add =>
+            {
+                add.AddCommand<GeneralCommand>("xml").WithDescription("Submit XML query");
+            });
+
             return config;
         }
 

@@ -15,6 +15,7 @@ namespace Witsml
     public interface IWitsmlClient
     {
         Task<T> GetFromStoreAsync<T>(T query, OptionsIn optionsIn) where T : IWitsmlQueryType, new();
+        Task<string> GetFromStoreAsync(string queryIn, string WMLtypeIn, string optionsIn);
         Task<QueryResult> AddToStoreAsync<T>(T query, OptionsIn optionsIn = OptionsIn.Requested) where T : IWitsmlQueryType;
         Task<QueryResult> UpdateInStoreAsync<T>(T query) where T : IWitsmlQueryType;
         Task<QueryResult> DeleteFromStoreAsync<T>(T query) where T : IWitsmlQueryType;
@@ -69,6 +70,35 @@ namespace Witsml
                 MaxReceivedMessageSize = int.MaxValue
             };
             return binding;
+        }
+        public async Task<string> GetFromStoreAsync(string queryIn, string WMLtypeIn, string optionsIn)
+        {
+            try
+            {
+                var request = new WMLS_GetFromStoreRequest
+                {
+                    WMLtypeIn = WMLtypeIn,
+                    OptionsIn = optionsIn,
+                    QueryIn = queryIn,
+                    CapabilitiesIn = ""
+                };
+
+                var response = await client.WMLS_GetFromStoreAsync(request);
+                LogQueriesSentAndReceived(request.QueryIn, response.IsSuccessful(), response.XMLout);
+
+                if (response.IsSuccessful())
+                {
+                    return response.XMLout;
+                }
+
+                var errorResponse = await client.WMLS_GetBaseMsgAsync(response.Result);
+                throw new Exception($"Error while querying store: {response.Result} - {errorResponse.Result}. {response.SuppMsgOut}");
+            }
+            catch (XmlException e)
+            {
+                Log.Error(e, "Failed to deserialize response from Witsml server");
+                return null;
+            }
         }
 
         public async Task<T> GetFromStoreAsync<T>(T query, OptionsIn optionsIn) where T : IWitsmlQueryType, new()

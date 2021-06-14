@@ -1,7 +1,7 @@
 using System;
 using System.IO;
-using System.Reflection.Metadata;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
 using Witsml;
 using WitsmlExplorer.Console.Extensions;
@@ -34,7 +34,8 @@ namespace WitsmlExplorer.Console.WitsmlClient
         {
             var builder = new ConfigurationBuilder();
             builder.SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.witsml.json", false, true);
+                .AddJsonFile("appsettings.witsml.json", true, true)
+                .AddUserSecrets(typeof(Program).Assembly);
             var configuration = builder.Build();
 
             var serverUrl = configuration["Witsml:Host"];
